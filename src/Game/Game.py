@@ -1,21 +1,8 @@
 from dataclasses import dataclass
 import datetime
 from enum import Enum
-
-
-
-@dataclass
-class Player():
-    id: int
-    name: str
-    nickname: str
-    walk_on_music: str
-
-@dataclass
-class Team():
-    id: int  
-    team_name: str  
-    players: list[Player]
+from Entities.Player import Player
+from Entities.Team import Team
 
 
 @dataclass

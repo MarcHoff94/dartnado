@@ -4,7 +4,6 @@ from enum import Enum
 from Entities.Player import Player
 from Entities.Team import Team
 
-
 @dataclass
 class Gamestatus(Enum):
     finished= "finished"
@@ -83,6 +82,16 @@ class Game():
     standings: str = "nan"
 
 
+@dataclass
+class Initializer():
+    game: Game 
+    game_mode: Game_Mode
+
+
+
+game_instance= Initializer()
+
+print(game_instance)
 
 
 

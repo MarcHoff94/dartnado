@@ -1,13 +1,30 @@
 import requests
 import json
-from Game.Game import Throw, Round
+from dataclasses import dataclass
+from enum import Enum
+from Game.Game import Throw, Multiplier
 
-throws = [Throw(multiplier=3, value=20), Throw(multiplier=3, value=20), Throw(multiplier=3, value=20)]
+class ClientMessageType(Enum):
+    THROW = 'Throw'
 
+    def __dict__(self) -> dict:
+        return {self.name: self.value}
+
+@dataclass
+class ClientMessage():
+    type: ClientMessageType
+    data: dict
+    
+    def __dict__(self) -> dict:
+        return {'type': self.type.value, 'data': self.data}
+
+throws = [Throw(multiplier=Multiplier.TRIPLE, value=20), Throw(multiplier=Multiplier.TRIPLE, value=20), Throw(multiplier=Multiplier.TRIPLE, value=20)]
 
 url = 'http://localhost:8000'
 for throw in throws:
-    json_data = json.dumps(throw.__dict__())
+    msg = ClientMessage(ClientMessageType.THROW, throw.__dict__())
+    json_data = json.dumps(msg.__dict__())
     headers = {'Content-type': 'application/json'}
     response = requests.post(url, data= json_data, headers= headers)
     print("Response from server:", response.text)
+

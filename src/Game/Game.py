@@ -4,7 +4,7 @@ from enum import Enum
 from Entities.Team import Team
 
 @dataclass
-class Gamestatus(Enum):
+class GameStatus(Enum):
     finished= "finished"
     ongoing= "ongoing"
     interrupted= "interrupted"
@@ -15,7 +15,7 @@ class Multiplier(Enum):
     DOUBLE= 2
     TRIPLE= 3
     def __dict__(self) -> dict:
-        {member.name: member.value for member in Multiplier.__members__.values()}
+        return {self.name: self.value}
 
 
 @dataclass
@@ -25,7 +25,7 @@ class Throw():
     value: int
 
     def __dict__(self) -> dict:
-        return {'multiplier': self.multiplier, 'value': self.value}
+        return {'multiplier': self.multiplier.value, 'value': self.value}
 
 @dataclass
 class Round():

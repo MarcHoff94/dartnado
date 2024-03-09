@@ -14,6 +14,8 @@ class Multiplier(Enum):
     SINGLE= 1
     DOUBLE= 2
     TRIPLE= 3
+    def __dict__(self) -> dict:
+        {member.name: member.value for member in Multiplier.__members__.values()}
 
 
 @dataclass
@@ -22,11 +24,16 @@ class Throw():
     multiplier: Multiplier
     value: int
 
+    def __dict__(self) -> dict:
+        return {'multiplier': self.multiplier, 'value': self.value}
+
 @dataclass
 class Round():
     round: list[Throw]
     player_id: int
     number_of_throws: int
+    def __dict__(self) -> dict:
+        return {'round': [throw.__dict__() for throw in self.round], 'player_id': self.player_id, 'number_of_throws': self.number_of_throws}
 
 
 @dataclass
@@ -86,12 +93,6 @@ class Game():
 class Initializer():
     game: Game 
     game_mode: Game_Mode
-
-
-
-game_instance= Initializer()
-
-print(game_instance)
 
 
 

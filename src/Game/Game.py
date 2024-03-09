@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 import datetime
 from enum import Enum
-from Entities.Player import Player
 from Entities.Team import Team
 
 
@@ -27,22 +26,23 @@ class Throw():
 @dataclass
 class Round():
     round: list[Throw]
-    player_id: Player.id
+    player_id: int
     number_of_throws: int
 
 
 @dataclass
 class Leg():
-    points: dict[Team.id:int]  
-    rounds: dict[Team.id:list[Round]]
+    points: dict[Team:int]  #key = team.id
+    rounds: dict[Team:list[Round]] #key = team.id
     starting_team: int
+
     #winner: team depends if calculation is done by the server or client
 
 
 @dataclass
 class Set():
     legs_to_win: int    
-    legs: dict[Team.id:list[Leg]]
+    legs: dict[Team:list[Leg]] #key = team.id
     current_leg: Leg
     #won: bool
     #set_id could be added
@@ -74,13 +74,13 @@ class Game_Mode():
 class Game(): 
     game_id: int
     teams: list[Team]
-    sets: dict[Team.id:list[Set]]
+    sets: dict[Team:list[Set]] #key = team.id
     current_set: Set
-    game_mode: Game_Mode
-    game_finished: Gamestatus
-    start_time: datetime
-    end_time: datetime
-    standings: str = "nan"
+    # game_mode: Game_Mode
+    # game_finished: Gamestatus
+    # start_time: datetime
+    # end_time: datetime
+    # standings: str = "nan"
 
 
 

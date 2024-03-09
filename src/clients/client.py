@@ -1,25 +1,11 @@
 import requests
-from dataclasses import dataclass
-from enum import Enum
+from Game.Game import Round, Throw
 
+throws = [Throw(multiplier=3, value=20), Throw(multiplier=3, value=20), Throw(multiplier=3, value=20)]
+round_1 = Round(round=throws, player_id=1, number_of_throws=3)
 
-
-class Game_status(Enum):
-    FINISHED = 'finished'
-    ONGOING =  'ongoing'
-
-
-@dataclass
-class Game():
-    playerx: str
-    playery: str
-    status: Game_status
-    def __init__(self, player1: str, player2: str, status: Game_status):
-        self.playerx = player1
-        self.playery = player2
-        self.status = status
 
 url = 'http://localhost:8000'
-data = {'key': '180!!!'}  
-response = requests.get(url)
+data = round_1.__dict__
+response = requests.post(url, data=data)
 print("Response from server:", response.text)

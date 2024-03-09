@@ -1,7 +1,5 @@
 from http.server import BaseHTTPRequestHandler
 
-
-
 class MainServer(BaseHTTPRequestHandler):
     def do_HEAD(self):
         return

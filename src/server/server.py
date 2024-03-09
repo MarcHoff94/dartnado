@@ -1,7 +1,5 @@
 from http.server import BaseHTTPRequestHandler
 
-
-
 class MainServer(BaseHTTPRequestHandler):
     def do_HEAD(self):
         return
@@ -17,7 +15,7 @@ class MainServer(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header('Content-type', content_type)
         self.end_headers()
-        return bytes("180!", "UTF-8")
+        return bytes("180!!", "UTF-8")
     
     def respond(self):
         content = self.handle_http(200, 'text/html')

@@ -86,7 +86,7 @@ class Game():
     # game_finished: Gamestatus
     # start_time: datetime
     # end_time: datetime
-    # standings: str = "nan"
+    # standings: str = None
 
 
 @dataclass

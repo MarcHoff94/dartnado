@@ -1,7 +1,7 @@
 
 import time
 from http.server import HTTPServer
-from server import MainServer
+from server.server import MainServer
 from Game.Game import Game, Set, Leg
 from Entities.Player import Player
 from Entities.Team import Team

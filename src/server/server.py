@@ -30,6 +30,7 @@ class MainServer(BaseHTTPRequestHandler):
             data = json.loads(post_data)
             match data['type']:
                 case 'Throw':
+                    #Tournament muss throw handeln und nächste action zurückgeben
                     msg = ServerMessage(ServerMessageType.NEW_ROUND, {'instert': 'Roundobject here'})
                     self.respond('application/json', json.dumps(msg.__dict__()).encode())
         except Exception as e:

@@ -2,48 +2,35 @@ from dataclasses import dataclass
 from Entities.Team import Team
 from Entities.Player import Player
 from Game.Game import *
-
-
-
-
-
-
+from abc import ABC, abstractmethod
+from typing import Protocol
 
 class Phase_Type(Enum):
     Single_Knockout= "Single_Knockout"
     Double_Knockout= "Double_Knockout"
     Group_Stage= "Group_Stage"
 
+class GamePlan(Protocol):
+    def get_next_game(team: Team) -> Game:
+        pass
 
-class Game_Plan():
+    def is_PhaseRound_finished() -> bool:
+        pass
     
 
 
 @dataclass
-class Phase():
+class Phase(ABC):
     
     input_player: list[Team]
     output_player: list[Team]
     type: Phase_Type
+    game_plan: GamePlan
 
+    @abstractmethod
     def create_game_plan(self):
-        match self.type.value: 
-            case "Single_Knockout":
-                self.create_single_knockout()
-            case "Double_Knockout":
-                self.create_double_knockout()
-            case "Group_Stage":
-                self.create_group_stage()
-
-                
-    def create_single_knockout(self):
         pass
-
-    def create_double_knockout(self):
-        pass
-
-    def create_group_stage():
-        pass
+    
 
 
 class Tournament():

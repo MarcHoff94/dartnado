@@ -28,7 +28,7 @@ class Throw():
         return {'multiplier': self.multiplier.value, 'value': self.value}
 
 @dataclass
-class Round():
+class GameRound():
     round: list[Throw]
     player_id: int
     number_of_throws: int
@@ -39,7 +39,7 @@ class Round():
 @dataclass
 class Leg():
     points: dict[Team:int]  #key = team.id
-    rounds: dict[Team:list[Round]] #key = team.id
+    rounds: dict[Team:list[GameRound]] #key = team.id
     starting_team: int
 
     #winner: team depends if calculation is done by the server or client
@@ -86,7 +86,7 @@ class Game():
     # game_finished: Gamestatus
     # start_time: datetime
     # end_time: datetime
-    # standings: str = "nan"
+    # standings: str = None
 
 
 @dataclass

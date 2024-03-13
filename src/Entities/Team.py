@@ -25,16 +25,15 @@ class Team():
     @id.setter
     def id(self, value):
         raise AttributeError(f'Attribute id is immutable and cannot be modified')
+    
     @property
     def players(self):
         return self._players
-    
     @players.setter
     def players(self, value):
-        if len(self._players) == 0 | len(value) == 0:
-            raise AttributeError('Cannot set attribute because players would contain no Player objects')
-        else:
-            self._players = value
+        if not value:
+            raise ValueError("Cannot set players to an empty list")
+        self._players = value
     
     def reset_stats(self):
         self.wins = 0

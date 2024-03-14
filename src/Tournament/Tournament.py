@@ -2,60 +2,57 @@ from dataclasses import dataclass
 from Entities.Team import Team
 from Entities.Player import Player
 from Game.Game import *
+from abc import ABC, abstractmethod
 
-
-
-
-
-
+from Game.Game import Game
 
 class Phase_Type(Enum):
     Single_Knockout= "Single_Knockout"
     Double_Knockout= "Double_Knockout"
     Group_Stage= "Group_Stage"
 
-
-class Game_Plan():
-    
-
-
-@dataclass
-class Phase():
-    
+class GamePlan(ABC):
     input_player: list[Team]
     output_player: list[Team]
-    type: Phase_Type
 
-    def create_game_plan(self):
-        match self.type.value: 
-            case "Single_Knockout":
-                self.create_single_knockout()
-            case "Double_Knockout":
-                self.create_double_knockout()
-            case "Group_Stage":
-                self.create_group_stage()
-
-                
-    def create_single_knockout(self):
+    @abstractmethod
+    def get_games(self, playable:bool) -> list[Game]:
         pass
 
-    def create_double_knockout(self):
+    @abstractmethod
+    def register_game_result(self, finished_game: Game):
         pass
 
-    def create_group_stage():
+    @abstractmethod
+    def determine_output_player(self):
         pass
 
+    @abstractmethod
+    def get_current_result(self) -> list[Team]:
+        pass
+
+
+class Group(GamePlan):
+    name: str
+    matches_played: dict[Team:set[Team]]
+    standings: list[Team]
+    placement_to_advance: int
+
+class GroupStage(GamePlan):
+    groups: list[Group]
+    placement_to_advance: int
+    
 
 class Tournament():
     registered_teams: list[Team]
     id: int
     name: str
-    phases: list[Phase]  
+    phases: list[GamePlan]  
     # start_time: datetime
     # end_time: datetime
     winner: Team
 
-    def __init__(self,registered_teams,id,name,phases):
+    def __init__(self,registered_teams: list[Team], id:int, name: str, phases: list[GamePlan]):
         self.registered_teams= registered_teams
         self.id= id
         self.name = name

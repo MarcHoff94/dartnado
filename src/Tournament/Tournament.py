@@ -4,7 +4,7 @@ from Entities.Player import Player
 from Game.Game import *
 from abc import ABC, abstractmethod
 
-from Game.Game import Game
+from Game.Game import Game, Game_Mode
 
 class Phase_Type(Enum):
     Single_Knockout= "Single_Knockout"
@@ -12,8 +12,9 @@ class Phase_Type(Enum):
     Group_Stage= "Group_Stage"
 
 class GamePlan(ABC):
-    input_player: list[Team]
-    output_player: list[Team]
+    input_teams: list[Team]
+    output_teams: list[Team]
+    game_mode: list[Game_Mode]
 
     @abstractmethod
     def get_games(self, playable:bool) -> list[Game]:
@@ -41,7 +42,6 @@ class Group(GamePlan):
 class GroupStage(GamePlan):
     groups: list[Group]
     placement_to_advance: int
-    
 
 class Tournament():
     registered_teams: list[Team]

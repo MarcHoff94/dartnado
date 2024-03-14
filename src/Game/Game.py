@@ -82,7 +82,7 @@ class Game():
     teams: list[Team]
     sets: dict[Team:list[Set]] #key = team.id
     current_set: Set
-    #game_mode: Game_Mode
+    game_mode: Game_Mode
     # game_finished: Gamestatus
     # start_time: datetime
     # end_time: datetime

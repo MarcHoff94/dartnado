@@ -17,9 +17,9 @@ teams = [team_1, team_2]
 game_1 = Game(1, teams, dict.fromkeys(teams), Set(5, dict.fromkeys(teams), Leg(501, dict.fromkeys, 1)) )
 gameplan1 = GroupStage()
 gameplan2 = GroupStage()
-gameplan2.input_player = teams
+gameplan2.input_teams = teams
 tourney = Tournament(teams, 1, 'testtourney', [gameplan1, gameplan2])
-print(tourney.phases[1].input_player)
+print(tourney.phases[1].input_teams)
 if __name__ == '__main__':
     httpd = HTTPServer((HOST_NAME, PORT_NUMBER), MainServer)
     

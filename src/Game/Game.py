@@ -1,40 +1,26 @@
 from dataclasses import dataclass
-import datetime
 from enum import Enum
 from Entities.Team import Team
+from pydantic import BaseModel
 
-@dataclass
-class GameStatus(Enum):
+class GameStatus(str, Enum):
     finished= "finished"
     ongoing= "ongoing"
     interrupted= "interrupted"
 
 
-class Multiplier(Enum):
+class Multiplier(int, Enum):
     SINGLE= 1
     DOUBLE= 2
     TRIPLE= 3
-    def __dict__(self) -> dict:
-        return {self.name: self.value}
 
-
-@dataclass
-class Throw():
-    """Client only handles throws and sends the result to the server"""
+class Throw(BaseModel):
     multiplier: Multiplier
     value: int
 
-    def __dict__(self) -> dict:
-        return {'multiplier': self.multiplier.value, 'value': self.value}
-
-@dataclass
-class GameRound():
+class GameRound(BaseModel):
     round: list[Throw]
     player_id: int
-    number_of_throws: int
-    def __dict__(self) -> dict:
-        return {'round': [throw.__dict__() for throw in self.round], 'player_id': self.player_id, 'number_of_throws': self.number_of_throws}
-
 
 @dataclass
 class Leg():
@@ -87,13 +73,6 @@ class Game():
     # start_time: datetime
     # end_time: datetime
     # standings: str = None
-
-
-@dataclass
-class Initializer():
-    game: Game 
-    game_mode: Game_Mode
-
 
 
 

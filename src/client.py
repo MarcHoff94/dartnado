@@ -15,13 +15,8 @@ game_1 = Game(
     current_leg= Leg(points={team.id: gamemode.points_per_leg for team in teams}, rounds= {team.id: list()  for team in teams}),
     starts_leg= team_1.id
     )
-
-
-# throws = [Throw(multiplier=3, value=20), Throw(multiplier=3, value=20), Throw(multiplier=3, value=20)]
-# round = GameRound(round=throws, team_id=1)
-# round_dict = round.model_dump()
 tournament_id = 1
-# game_id = 42
+
 game_dict = game_1.model_dump()
 url = f'http://localhost:8000/tournament/{tournament_id}/game/{game_1.game_id}/finished'
 response = requests.put(url, json=game_dict)

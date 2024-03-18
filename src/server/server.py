@@ -18,3 +18,7 @@ class MainServer(FastAPI):
         @self.put("/tournament/{tournament_id}/game/{game_id}/finished")
         def register_game(tournament_id: int, game_id: int, finished_game: Game):
             return {'tournament id': tournament_id, 'game id': game_id, 'received_game': finished_game}
+        
+        @self.get("/hello")
+        def greet():
+            return 'Hello'

@@ -27,7 +27,7 @@ class GameRound(BaseModel):
 class Leg(BaseModel):
     points: dict[int,int]  #key = team.id
     rounds: dict[int,list[GameRound]] #key = team.id
-    class Config:
+    class Config: # as a workaround to send games as objects
         arbitrary_types_allowed = True
 
     #winner: team depends if calculation is done by the server or client
@@ -116,6 +116,7 @@ class Game(BaseModel, UserInterface):
             self.current_leg = Leg(self.teams, self.game_mode.points_per_leg,)
             return self.current_leg
         return None
+    
     def get_number_of_sets_won(self, team_id: int) -> int:
         return len(self.sets[team_id])
     

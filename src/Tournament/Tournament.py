@@ -51,6 +51,7 @@ class Group():
             start_id += 1
             game = Game(
                 game_id = start_id, 
+                group_name= self.name,
                 teams = matchup,
                 game_mode= self.game_mode,
                 sets= {team.id: list()  for team in matchup},

@@ -8,6 +8,7 @@ team_2 = Team(id=2, team_name='test2', players=[Player(id=2, name='Marcus Hoffma
 teams = [team_1, team_2]
 game_1 = Game(
     game_id=1,
+    group_name='test',
     teams=teams,
     game_mode=gamemode,
     sets= {team.id: list()  for team in teams},

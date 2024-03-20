@@ -16,9 +16,9 @@ game_1 = Game(
     starts_leg= team_1.id
     )
 tournament_id = 1
-
 game_dict = game_1.model_dump()
-url = f'http://localhost:8000/tournament/{tournament_id}/game/{game_1.game_id}/finished'
-response = requests.put(url, json=game_dict)
+leg_dict = game_1.current_leg.model_dump()
+url = f'http://localhost:8000/tournament/{tournament_id}/game/{game_1.game_id}/leg'
+response = requests.put(url, json=leg_dict)
 print("Response from server:", response.text, response.status_code)
 

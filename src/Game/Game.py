@@ -22,6 +22,7 @@ class Throw(BaseModel):
 class GameRound(BaseModel):
     round: list[Throw]
     team_id: int
+    player_id: int
 
 
 class Leg(BaseModel):
@@ -87,6 +88,7 @@ class UserInterface(ABC):
 
 class Game(BaseModel, UserInterface): 
     game_id: int
+    group_name: str
     teams: list[Team]
     game_mode: Game_Mode
     sets: dict[int,list[Set]] #key = team.id

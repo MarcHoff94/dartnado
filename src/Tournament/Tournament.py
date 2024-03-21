@@ -1,6 +1,5 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from Entities.Team import Team
-from Entities.Player import Player
 from Game.Game import *
 from abc import ABC, abstractmethod
 from itertools import combinations
@@ -17,21 +16,6 @@ class GamePlan(ABC):
     output_teams: list[Team]
     game_mode: list[Game_Mode]
 
-    @abstractmethod
-    def get_games(self) -> list[Game]:
-        pass
-
-    @abstractmethod
-    def register_game_result(self, finished_game: Game):
-        pass
-
-    @abstractmethod
-    def determine_output_player(self, placement_to_advance: int) -> list[Team]:
-        pass
-
-    @abstractmethod
-    def get_current_result(self) -> list[Team]:
-        pass
 @dataclass
 class Group():
     name: str
@@ -74,22 +58,29 @@ class Group():
             self.finished_matches[finished_game.game_id] = finished_game
 
     def get_current_result(self) -> list[Team]:
-         return self.standings.sort(key= lambda team: (-team.wins, sum(team.point_diff)))
+         self.standings.sort(key= lambda team: (-team.wins, sum(team.point_diff)))
+         return self.standings
     
     def is_group_finished(self) -> bool:
         return len(self.matches.values()) == 0
+    
 class GroupStage(GamePlan):
     groups: dict[str, Group] #key = Group.name
     placement_to_advance: int
 
-    def get_games(self) -> list[Game]:
-        return super().get_games()
+    def get_games_from_group(self, group_name: Group) -> list[Game]:
+        self.groups[group_name].get_games()
+
     def register_game_result(self, finished_game: Game):
-        return super().register_game_result(finished_game)
-    def get_current_result(self) -> list[Team]:
-        return super().get_current_result()
-    def determine_output_player(self, placement_to_advance: int) -> list[Team]:
-        return super().determine_output_player(placement_to_advance)    
+        self.groups[finished_game.group_name].register_game_result(finished_game)
+
+    def get_current_result(self, group_name: str) -> list[Team]:
+        return self.groups[group_name].get_current_result()
+      
+    def determine_output_teams(self):
+        for key in self.groups:
+            standings = self.groups[key].get_current_result()
+            self.output_teams.extend(standings[:self.placement_to_advance])
     
 class Tournament():
     registered_teams: list[Team]

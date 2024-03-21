@@ -13,7 +13,8 @@ team_4 = Team(id=4, team_name='test4', players=[Player(id=4, name='Franz Müller
 teams = [team_1, team_2, team_3, team_4]
 
 group_1 = Group(0,'test', teams, gamemode, 2)
-print(len(group_1.matches))
+x = group_1.get_current_result()
+print(x[:1])
 
 HOST_NAME = 'localhost'
 PORT_NUMBER = 8000

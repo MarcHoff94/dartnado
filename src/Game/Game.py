@@ -94,7 +94,7 @@ class Game(BaseModel, UserInterface):
     sets: dict[int,list[Set]] #key = team.id
     current_set: Set
     current_leg: Leg
-    starts_leg: int #index in self.teams
+    starts_leg: int #team.id
     winner: Team | None = Field(None)
 
     # start_time: datetime

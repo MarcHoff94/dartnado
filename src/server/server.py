@@ -1,10 +1,13 @@
 from fastapi import FastAPI
-from Game.Game import *
+from Tournament.Tournament import *
+from DummyFactory.DummyFactory import generate_groupstage, generate_teams
+
 
 class MainServer(FastAPI):
-    def __init__(self, *args, **kwargs):
+    groupstage: GroupStage
+    def __init__(self, groupstage: GroupStage, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        self.groupstage = groupstage
         # Define your endpoints here
         @self.get("/tournament/{tournament_id}/game/{game_id}")
         def get_game(tournament_id: int, game_id: int):
@@ -16,7 +19,8 @@ class MainServer(FastAPI):
 
         @self.put("/tournament/{tournament_id}/game/{game_id}/finished")
         def register_game(tournament_id: int, game_id: int, finished_game: Game):
-            return {'tournament id': tournament_id, 'game id': game_id, 'received_game': finished_game}
+            self.groupstage.register_game_result(finished_game)
+            return {f"Game: {finished_game.teams[1].team_name} vs. {finished_game.teams[2].team_name} => Winner: {finished_game.winner}"}
         
         @self.put("/tournament/{tournament_id}/game/{game_id}/leg")
         def update_game(tournament_id: int, game_id: int, finished_leg: Leg):

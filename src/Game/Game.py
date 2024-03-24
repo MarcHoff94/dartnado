@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, Field
 from abc import ABC, abstractmethod
 from Entities.Team import Team
 
@@ -89,12 +89,13 @@ class UserInterface(ABC):
 class Game(BaseModel, UserInterface): 
     game_id: int
     group_name: str
-    teams: list[Team]
+    teams: dict[int,Team] #key = team.id
     game_mode: Game_Mode
     sets: dict[int,list[Set]] #key = team.id
     current_set: Set
     current_leg: Leg
     starts_leg: int #index in self.teams
+    winner: Team | None = Field(None)
 
     # start_time: datetime
     # end_time: datetime
@@ -112,10 +113,11 @@ class Game(BaseModel, UserInterface):
                 self.sets[new_round.team_id].append(self.current_set)
 
                 if self.get_number_of_sets_won(new_round.team_id) == self.game_mode.sets_to_win:
+                    self.winner = self.teams[new_round.team_id]
                     return None
-                self.current_set = Set(dict.fromkeys(self.teams))
+                self.current_set = Set(dict.fromkeys(self.teams.keys()))
 
-            self.current_leg = Leg(self.teams, self.game_mode.points_per_leg,)
+            self.current_leg = Leg(points=dict.fromkeys(self.teams.keys()), rounds=dict.fromkeys(self.teams.keys()))
             return self.current_leg
         return None
     

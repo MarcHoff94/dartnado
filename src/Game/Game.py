@@ -24,6 +24,15 @@ class GameRound(BaseModel):
     team_id: int
     player_id: int
 
+    def register_throw(self, new_throw:Throw) -> int | None:
+        """Stores parameter new_throw and return number of throws remaining in this round"""
+        self.round.append(new_throw)
+        remaining_throws = 3 - len(self.round)
+        if remaining_throws > 0:
+            return remaining_throws
+        else:
+            None
+
 
 class Leg(BaseModel):
     points: dict[int,int]  #key = team.id
@@ -39,7 +48,7 @@ class Leg(BaseModel):
         result = self.points[new_round.team_id] - sum([throw.value*throw.multiplier for throw in new_round.round])
 
         if result >= 0:
-            self.points = result
+            self.points[new_round.team_id] = result
             return result
         else:
             return self.points
@@ -118,8 +127,7 @@ class Game(BaseModel, UserInterface):
                 self.current_set = Set(dict.fromkeys(self.teams.keys()))
 
             self.current_leg = Leg(points=dict.fromkeys(self.teams.keys()), rounds=dict.fromkeys(self.teams.keys()))
-            return self.current_leg
-        return None
+        return self.current_leg
     
     def get_number_of_sets_won(self, team_id: int) -> int:
         return len(self.sets[team_id])

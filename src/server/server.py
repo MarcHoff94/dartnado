@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from Tournament.Tournament import *
 from DummyFactory.DummyFactory import generate_groupstage, generate_teams
+import time
 
 
 class MainServer(FastAPI):
@@ -11,6 +12,7 @@ class MainServer(FastAPI):
         # Define your endpoints here
         @self.get("/tournament/{tournament_id}/game/{game_id}")
         def get_game(tournament_id: int, game_id: int):
+            time.sleep(5)
             return {"tournament_id": tournament_id, "game_id": game_id}
         
         @self.put("/tournament/{tournament_id}/game/{game_id}/round")

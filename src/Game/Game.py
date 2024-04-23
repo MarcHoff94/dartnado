@@ -126,7 +126,7 @@ class Game(BaseModel, UserInterface):
         else:
             self.started_leg = self.get_idx_next_player(self.started_leg)
             self.current_gameround = GameRound(round=list(), checked_in=False, team_id=self.teams[self.started_leg].id, player_id=0)
-            self.current_leg = Leg(points=dict.fromkeys([team.id for team in self.teams]), rounds=dict.fromkeys([team.id for team in self.teams]))
+            self.current_leg = Leg(points={team.id: self.game_mode.points_per_leg for team in self.teams}, rounds={team.id: list() for team in self.teams})
         return False
        
     def register_throw(self, new_throw: Throw):
@@ -135,7 +135,7 @@ class Game(BaseModel, UserInterface):
             if self.meets_check_in_condition(new_throw) == False:
                 new_throw.value = 0
 
-        result = self.current_leg.points[self.current_gameround.team_id] - new_throw.value
+        result = self.current_leg.points[self.current_gameround.team_id] - new_throw.value*new_throw.multiplier.value
         if result < 0:
             new_throw.value = 0
             self.current_gameround.round.append(new_throw)
@@ -150,6 +150,7 @@ class Game(BaseModel, UserInterface):
                 return
         else:
             self.current_leg.points[self.current_gameround.team_id] = result
+            self.current_gameround.round.append(new_throw)
 
 
         if 3 - self.current_gameround.round.__len__() == 0:
@@ -158,7 +159,7 @@ class Game(BaseModel, UserInterface):
             self.current_gameround = GameRound(round=list(), checked_in=False, team_id=self.teams[self.started_round].id, player_id=0)  
 
     def get_idx_next_player(self, started_idx: int) -> int:
-        if started_idx > self.teams.__len__():
+        if started_idx == self.teams.__len__()-1:
             started_idx = 0
         else:
             started_idx += 1  

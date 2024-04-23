@@ -36,7 +36,7 @@ class Group():
             game = Game(
                 game_id = start_id, 
                 group_name= self.name,
-                teams = {team.id: team for team in matchup},
+                teams = teams,
                 game_mode= self.game_mode,
                 sets= {team.id: list()  for team in matchup},
                 current_set= Set(legs={team.id: list()  for team in matchup}),

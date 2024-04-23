@@ -44,7 +44,7 @@ def generate_games(num_games: int, teams_per_game: int, teams: list[Team], start
         result.append(Game(
             game_id= start_gameid,
             group_name= f"group_{start_gameid}",
-            teams= {team.id: team for team in teams[index_start:index_end]},
+            teams= teams,
             game_mode= gamemode,
             sets={team.id: list() for team in teams[index_start:index_end]},
             current_set= Set(legs={team.id: list() for team in teams[index_start:index_end]}),

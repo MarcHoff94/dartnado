@@ -26,48 +26,17 @@ class Check_In(str, Enum):
     DOUBLE_IN= "DOUBLE IN"
     TRIPLE_IN= "TRIPLE IN"
 
-
 class GameRound(BaseModel):
     round: list[Throw]
     checked_in: bool = Field(False)
     team_id: int
     player_id: int
 
-    def register_throw(self, new_throw:Throw, check_in_condition: Check_In) -> int | None:
-        """Stores parameter new_throw and return number of throws remaining in this round"""
-        if self.checked_in == False:
-            if meets_check_in_condition(check_in_condition, new_throw):
-                self.checked_in = True
-            else:
-                new_throw.value = 0
-                
-        self.round.append(new_throw)
-        remaining_throws = 3 - len(self.round)
-        if remaining_throws > 0:
-            return remaining_throws
-        else:
-            None
-
 class Leg(BaseModel):
     points: dict[int,int]  #key = team.id
     rounds: dict[int,list[GameRound]] #key = team.id
     class Config: # as a workaround to send games as objects
         arbitrary_types_allowed = True
-
-    #winner: team depends if calculation is done by the server or client
-    def register_round(self, new_round: GameRound) -> int:
-        """updates Leg.points for new_round.team_id and returns the remaining points for this team. 
-        If None is returned the team overthrew and the point total is not changed"""
-        self.rounds[new_round.team_id].append(new_round)
-        result = self.points[new_round.team_id] - sum([throw.value*throw.multiplier for throw in new_round.round])
-
-        if result >= 0:
-            self.points[new_round.team_id] = result
-            return result
-        else:
-            return self.points
-        
-
 
 class Set(BaseModel): 
     legs: dict[int, list[Leg]]
@@ -90,7 +59,7 @@ class Game_Mode(BaseModel):
 
 class UserInterface(ABC):
     @abstractmethod
-    def register_round(self, new_round: GameRound) -> Leg | None:
+    def register_throw(self, new_throw: Throw):
         pass
     @abstractmethod
     def finish_game(self) -> None:
@@ -100,14 +69,16 @@ class UserInterface(ABC):
 class Game(BaseModel, UserInterface): 
     game_id: int
     group_name: str
-    teams: dict[int,Team] #key = team.id
+    teams: list[Team] #key = team.id
     game_mode: Game_Mode
     sets: dict[int,list[Set]] #key = team.id
     current_set: Set
     current_leg: Leg
-    current_gameround: GameRound
-    started_leg: int #team.id
-    winner: Team | None = Field(None)
+    current_gameround: GameRound | None = Field(None)
+    started_round: int = Field(0) #idx of team in self.teams
+    started_leg: int = Field(0) #idx of team in self.teams
+    started_set: int = Field(0) #idx of team in self.teams
+    winner: int | None = Field(None) #team.id
 
     # start_time: datetime
     # end_time: datetime
@@ -147,11 +118,15 @@ class Game(BaseModel, UserInterface):
             self.sets[self.current_gameround.team_id].append(self.current_set)
 
             if self.get_number_of_sets_won(self.current_gameround.team_id) == self.game_mode.sets_to_win:
-                self.winner = self.teams[self.current_gameround.team_id]
+                #self.winner = self.teams[self.current_gameround.team_id]
                 return True
-            self.current_set = Set(dict.fromkeys(self.teams.keys()))
-
-        self.current_leg = Leg(points=dict.fromkeys(self.teams.keys()), rounds=dict.fromkeys(self.teams.keys()))
+            self.current_set = Set(dict.fromkeys([team.id for team in self.teams]))
+            self.started_set = self.get_idx_next_player(self.started_set)
+            self.current_gameround = GameRound(round=list(), checked_in=False, team_id=self.teams[self.started_set].id, player_id=0)
+        else:
+            self.started_leg = self.get_idx_next_player(self.started_leg)
+            self.current_gameround = GameRound(round=list(), checked_in=False, team_id=self.teams[self.started_leg].id, player_id=0)
+            self.current_leg = Leg(points=dict.fromkeys([team.id for team in self.teams]), rounds=dict.fromkeys([team.id for team in self.teams]))
         return False
        
     def register_throw(self, new_throw: Throw):
@@ -169,27 +144,34 @@ class Game(BaseModel, UserInterface):
         elif result == 0 & self.meets_check_out_condition(new_throw):
             self.current_leg.points[self.current_gameround.team_id] = result
             self.current_gameround.round.append(new_throw)
-            self.current_leg.register_round(self.current_gameround)
+            self.current_leg.rounds[self.current_gameround.team_id].append(self.current_gameround)
             self.current_set.register_finished_leg(self.current_gameround.team_id, self.current_leg)
-            return
+            if self.is_game_won():
+                return
         else:
             self.current_leg.points[self.current_gameround.team_id] = result
 
 
         if 3 - self.current_gameround.round.__len__() == 0:
-            self.current_leg.register_round(self.current_gameround)
-            #hier weiter machen, das team das nicht gespielt hat is als nächstes dran (auch noch in elif in Zeile 188 einfügen)
-            next_team = 0
-            self.current_gameround = GameRound(round=list(), checked_in=False, team_id=next_team, player_id=0)  
+            self.current_leg.rounds[self.current_gameround.team_id].append(self.current_gameround)
+            self.started_round = self.get_idx_next_player(self.started_round)    
+            self.current_gameround = GameRound(round=list(), checked_in=False, team_id=self.teams[self.started_round].id, player_id=0)  
+
+    def get_idx_next_player(self, started_idx: int) -> int:
+        if started_idx > self.teams.__len__():
+            started_idx = 0
+        else:
+            started_idx += 1  
+        return started_idx  
         
-        
-        
-            
     def register_gameround(self):
         pass
+
     def start_game(self):
-        self.started_leg = random.choice(list(self.teams.keys()))
-        self.current_gameround = GameRound(round=list(), checked_in=False, team_id=self.started_leg)
+        self.started_round = random.choice(range(0,self.teams.__len__()))
+        self.started_leg = self.started_round
+        self.started_set = self.started_round
+        self.current_gameround = GameRound(round=list(), checked_in=False, team_id=self.teams[self.started_round].id, player_id= 0)
 
     def get_number_of_sets_won(self, team_id: int) -> int:
         return len(self.sets[team_id])

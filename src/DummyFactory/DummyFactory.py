@@ -49,8 +49,7 @@ def generate_games(num_games: int, teams_per_game: int, teams: list[Team], start
             sets={team.id: list() for team in teams[index_start:index_end]},
             current_set= Set(legs={team.id: list() for team in teams[index_start:index_end]}),
             current_leg= Leg(points={team.id: gamemode.points_per_leg for team in teams[index_start:index_end]}, rounds= {team.id: list() for team in teams[index_start:index_end]}),
-            starts_leg= teams[index_start].id,
-            winner= None
+            
         ))
         index_start = index_end
         index_end += teams_per_game

@@ -5,7 +5,9 @@ import time
 import requests
 from Game.Game import *
 from Entities.Player import Player
+
 #Dummy stuff created
+
 dartboard_values = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,25,50]
 
 gamemode = Game_Mode(sets_to_win=3,legs_to_win_set=3,points_per_leg=501, check_out=Check_Out.DOUBLE_OUT, check_in=Check_In.DOUBLE_IN)
@@ -20,8 +22,8 @@ game_1 = Game(
     sets= {team_id: [] for team_id in teams},
     current_set= Set(legs={team_id: [] for team_id in teams}),
     current_leg= Leg(points={team_id: gamemode.points_per_leg for team_id in teams}, rounds= {team_id: [] for team_id in teams}),
-    starts_leg= team_1.id
     )
+game_1.start_game()
 tournament_id = 1
 
 #Building interactive UI

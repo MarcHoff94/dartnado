@@ -118,15 +118,18 @@ class Game(BaseModel, UserInterface):
             self.sets[self.current_gameround.team_id].append(self.current_set)
 
             if self.get_number_of_sets_won(self.current_gameround.team_id) == self.game_mode.sets_to_win:
-                #self.winner = self.teams[self.current_gameround.team_id]
+                self.winner = self.teams[self.started_round]
                 return True
-            self.current_set = Set(dict.fromkeys([team.id for team in self.teams]))
+            self.current_set = Set(legs={team.id: list() for team in self.teams})
             self.started_set = self.get_idx_next_player(self.started_set)
-            self.current_gameround = GameRound(round=list(), checked_in=False, team_id=self.teams[self.started_set].id, player_id=0)
+            self.started_leg = self.started_set
+            self.started_round = self.started_set
         else:
             self.started_leg = self.get_idx_next_player(self.started_leg)
-            self.current_gameround = GameRound(round=list(), checked_in=False, team_id=self.teams[self.started_leg].id, player_id=0)
-            self.current_leg = Leg(points={team.id: self.game_mode.points_per_leg for team in self.teams}, rounds={team.id: list() for team in self.teams})
+            self.started_round = self.started_leg
+
+        self.current_gameround = GameRound(round=list(), checked_in=False, team_id=self.teams[self.started_round].id, player_id=0)
+        self.current_leg = Leg(points={team.id: self.game_mode.points_per_leg for team in self.teams}, rounds={team.id: list() for team in self.teams})
         return False
        
     def register_throw(self, new_throw: Throw):

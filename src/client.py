@@ -53,7 +53,7 @@ put_datatable([
 game_finished = False
 
 while game_finished == False:
-    throw_data = input_group(f'Throw {game_1.current_gameround.round.__len__()}/3',[
+    throw_data = input_group(f'{game_1.teams[game_1.started_round].team_name} Throw {game_1.current_gameround.round.__len__()+1}/3',[
         select('points', dartboard_values, name= 'points'),
         select('multiplier', Multiplier, name= 'multiplier')
     ])

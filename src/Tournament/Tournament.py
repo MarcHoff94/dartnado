@@ -6,15 +6,16 @@ from itertools import combinations
 
 from Game.Game import Game, Game_Mode
 
-class Phase_Type(Enum):
-    Single_Knockout= "Single_Knockout"
-    Double_Knockout= "Double_Knockout"
-    Group_Stage= "Group_Stage"
+class PhaseType(Enum):
+    SINGLE_KNOCKOUT= "single_knockout"
+    DOUBLE_KNOCKOUT= "double_knockout"
+    GROUPSTAGE= "groupstage"
 
 class GamePlan(ABC):
     input_teams: list[Team]
     output_teams: list[Team]
     game_mode: list[Game_Mode]
+    phasetype: PhaseType
 
 @dataclass
 class Group():
@@ -68,6 +69,7 @@ class Group():
     
 class GroupStage(GamePlan):
     groups: dict[str, Group] #key = Group.name
+    phasetype: PhaseType = Field(PhaseType.GROUPSTAGE)
 
     def __init__(self, input_teams: list[Team], game_mode: list[Game_Mode]):
         self.input_teams = input_teams
@@ -111,4 +113,5 @@ class Tournament():
         self.name = name
         self.phases = phases
         self.winner = None
+
         

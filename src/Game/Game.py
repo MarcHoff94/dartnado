@@ -5,9 +5,9 @@ from Entities.Team import Team
 import random
 
 class GameStatus(str, Enum):
-    finished= "finished"
-    ongoing= "ongoing"
-    interrupted= "interrupted"
+    FINISHED= "finished"
+    ONGOING= "ongoing"
+    INTERRUPTED= "interrupted"
 class Multiplier(int, Enum):
     SINGLE= 1
     DOUBLE= 2
@@ -18,13 +18,13 @@ class Throw(BaseModel):
     value: int
 
 class Check_Out(str, Enum):
-    STRAIGHT_OUT= "STRAIGHT OUT"
-    DOUBLE_OUT= "DOUBLE OUT"
-    MASTER_OUT= "MASTER OUT"
+    STRAIGHT_OUT= "straight_out"
+    DOUBLE_OUT= "double_out"
+    MASTER_OUT= "master_out"
 class Check_In(str, Enum):
-    STRAIGHT_IN= "STRAIGHT IN"
-    DOUBLE_IN= "DOUBLE IN"
-    TRIPLE_IN= "TRIPLE IN"
+    STRAIGHT_IN= "straight_in"
+    DOUBLE_IN= "double_in"
+    TRIPLE_IN= "triple_in"
 
 class GameRound(BaseModel):
     round: list[Throw]
@@ -88,26 +88,26 @@ class Game(BaseModel, UserInterface):
             
     def meets_check_out_condition(self, throw: Throw) -> bool:
         match self.game_mode.check_out.value:
-            case 'STRAIGHT OUT':
+            case 'straight_out':
                 return True
-            case 'DOUBLE OUT':
+            case 'double_out':
                 return throw.multiplier.value == 2
-            case 'MASTER OUT':
+            case 'master_out':
                 return (throw.multiplier.value == 2) | (throw.multiplier.value == 3)
 
 
     def meets_check_in_condition(self, throw: Throw) -> bool:
         match self.game_mode.check_in.value:
-            case 'STRAIGHT IN':
+            case 'straight_in':
                 self.current_gameround.checked_in = True
                 return True
-            case 'DOUBLE IN':
+            case 'double_in':
                 if throw.multiplier.value == 2:
                     self.current_gameround.checked_in = True
                     return True
                 else:
                     return False
-            case 'TRIPLE IN':
+            case 'triple_in':
                 if throw.multiplier.value == 3:
                     self.current_gameround.checked_in = True
                     return True

@@ -167,9 +167,6 @@ class Game(BaseModel, UserInterface):
         else:
             started_idx += 1  
         return started_idx  
-        
-    def register_gameround(self):
-        pass
 
     def start_game(self):
         self.started_round = random.choice(range(0,self.teams.__len__()))

@@ -3,6 +3,7 @@ from Entities.Team import Team
 from Game.Game import *
 from abc import ABC, abstractmethod
 from itertools import combinations
+import math
 
 from Game.Game import Game, Game_Mode
 
@@ -35,8 +36,8 @@ class Group():
         matchups = combinations(self.standings, 2)
         for matchup in matchups:
             game = Game(
-                game_id = start_id, 
-                group_name= self.name,
+                game_id = start_id,
+                group_name = name,
                 teams = teams,
                 game_mode= self.game_mode,
                 sets= {team.id: list()  for team in matchup},
@@ -97,9 +98,47 @@ class GroupStage(GamePlan):
         for key in self.groups:
             standings = self.groups[key].get_current_result()
             self.output_teams.extend(standings[:self.groups[key].placement_to_advance])
+
+class KnockOutNode():
+    def __init__(self, game: Game, previous: list) -> None:
+        self.game = game
+        self.previous = previous
+        self.next = None
+
+@dataclass
+class SingleKockOut():
+    tree: dict[int,list[KnockOutNode]]
+    def __init__(self, input_teams: list[Team], default_game_mode: Game_Mode, game_start_id: int):
+        total_num_teams = len(input_teams)
+        self.create_empty_tree(total_num_teams)
+        i = 0
+
+    def calc_tree_depth(self, num_teams: int) -> int:
+        return math.floor(math.log2(num_teams))
+    
+    def create_empty_tree(self, total_num_teams: int):
+        tree_depth = self.calc_tree_depth(total_num_teams) - 1
+        self.tree = dict()
+        for tree_level in range(tree_depth, -1, -1):
+            pos_previous = 0
+            num_nodes = pow(2,tree_level)
+            self.tree[tree_level] = list()
+            if tree_level == tree_depth:
+                for i in range(num_nodes):
+                    self.tree[tree_level].append(KnockOutNode(None, None))
+            else:
+                for i in range(num_nodes):
+                    previous = list()
+                    previous.append(self.tree[tree_level+1][pos_previous])
+                    pos_previous += 1
+                    previous.append(self.tree[tree_level+1][pos_previous])
+                    pos_previous += 1
+                    self.tree[tree_level].append(KnockOutNode(None, previous))
+                
     
 class Tournament():
     registered_teams: list[Team]
+    start_id_games: int
     id: int
     name: str
     phases: list[GamePlan]  

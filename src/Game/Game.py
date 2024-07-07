@@ -79,6 +79,7 @@ class Game(BaseModel, UserInterface):
     started_leg: int = Field(0) #idx of team in self.teams
     started_set: int = Field(0) #idx of team in self.teams
     winner: int | None = Field(None) #team.id
+    looser: list[Team] = Field(None)
 
     # start_time: datetime
     # end_time: datetime
@@ -119,6 +120,7 @@ class Game(BaseModel, UserInterface):
 
             if self.get_number_of_sets_won(self.current_gameround.team_id) == self.game_mode.sets_to_win:
                 self.winner = self.teams[self.started_round]
+                self.looser = [team for team in self.teams if team.id != self.winner]
                 return True
             self.current_set = Set(legs={team.id: list() for team in self.teams})
             self.started_set = self.get_idx_next_player(self.started_set)

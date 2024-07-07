@@ -57,9 +57,10 @@ class Group():
     def get_games(self) -> list[Game]:
         return list(self.matches.values())
 
-    def register_game_result(self, finished_game: Game):
+    def register_game_result(self, finished_game: Game) -> bool:
             self.matches.pop(finished_game.game_id)
             self.finished_matches[finished_game.game_id] = finished_game
+            return True
 
     def get_current_result(self) -> list[Team]:
          self.standings.sort(key= lambda team: (-team.wins, sum(team.point_diff)))
@@ -88,8 +89,8 @@ class GroupStage(GamePlan):
     def get_games_from_group(self, group_name: Group) -> list[Game]:
         self.groups[group_name].get_games()
 
-    def register_game_result(self, finished_game: Game):
-        self.groups[finished_game.group_name].register_game_result(finished_game)
+    def register_game_result(self, finished_game: Game) -> bool:
+        return self.groups[finished_game.group_name].register_game_result(finished_game)
 
     def get_current_result(self, group_name: str) -> list[Team]:
         return self.groups[group_name].get_current_result()
@@ -107,12 +108,15 @@ class KnockOutNode():
         self.next = None
 
 @dataclass
-class SingleKockOut():
+class SingleKnockOut(GamePlan):
     tree: dict[int,list[KnockOutNode]]
     tree_depth: int
     def __init__(self, input_teams: list[Team], default_game_mode: Game_Mode, game_start_id: int):
+        self.input_teams = input_teams
+        self.phasetype = PhaseType.SINGLE_KNOCKOUT
+        self.game_mode = [default_game_mode]
         total_num_teams = len(input_teams)
-        self.create_empty_tree(total_num_teams)
+        self.tree = self.create_empty_tree(total_num_teams)
         i = 0
         for node in self.tree[self.tree_depth]:
             matchup = list()
@@ -129,38 +133,79 @@ class SingleKockOut():
                 starts_leg= matchup[0].id
             )
         if len(input_teams) != 0:
-            print(f"Could not assign all teams to tournamenttree. Following teams remain without match: {input_teams}")
+            print(f"Could not assign all teams to tournamenttree. Following teams remain without match: {[(team.id, team.team_name) for team in input_teams]}")
 
     def calc_tree_depth(self, num_teams: int) -> int:
         return math.floor(math.log2(num_teams))
     
-    def create_empty_tree(self, total_num_teams: int):
+    def create_empty_tree(self, total_num_teams: int) -> dict[int, list[KnockOutNode]]:
         self.tree_depth = self.calc_tree_depth(total_num_teams) - 1
-        self.tree = dict()
+        tree = dict()
         for tree_level in range(self.tree_depth, -1, -1):
             pos_previous = 0
             num_nodes = pow(2,tree_level)
-            self.tree[tree_level] = list()
+            tree[tree_level] = list()
             if tree_level == self.tree_depth:
                 for i in range(num_nodes):
-                    self.tree[tree_level].append(KnockOutNode(None, None))
+                    tree[tree_level].append(KnockOutNode(None, None))
             else:
                 for i in range(num_nodes):
                     previous = list()
-                    previous.append(self.tree[tree_level+1][pos_previous])
+                    previous.append(tree[tree_level+1][pos_previous])
                     pos_previous += 1
-                    previous.append(self.tree[tree_level+1][pos_previous])
+                    previous.append(tree[tree_level+1][pos_previous])
                     pos_previous += 1
-                    self.tree[tree_level].append(KnockOutNode(None, previous))
+                    tree[tree_level].append(KnockOutNode(None, previous))
+        return tree
 
-    def register_game_result(self, finished_game:Game):
+    def register_game_result(self, finished_game:Game) -> bool:
         for treelevel in self.tree:
             for node in self.tree[treelevel]:
                 if node.game.game_id == finished_game.game_id:
                     node.game = finished_game
+                    return True
+        return False
     
     def get_playable_games(self) -> list[Game]:
         result = list()
+        for treelevel in self.tree:
+            for node in self.tree[treelevel]:
+                if node.game != None & node.game_send_to_client == False:
+                    result.append(node.game)
+        return result
+
+@dataclass
+class DoubleKnockOut(SingleKnockOut):
+    upperbracket: SingleKnockOut
+    lowerbracket: dict[int, list[KnockOutNode]]
+    
+    def __init__(self, upperbracket: SingleKnockOut, default_game_mode: Game_Mode):
+        self.phasetype = PhaseType.DOUBLE_KNOCKOUT
+        self.game_mode = [default_game_mode]
+        self.upperbracket = upperbracket
+        self.tree = self.create_empty_tree(len(upperbracket.tree[upperbracket.tree_depth]))
+        self.input_teams = list()
+
+    def create_lowerbracket_tree(upperbracket: SingleKnockOut) -> SingleKnockOut:
+        pass
+
+    def register_game_result(self, finished_game: Game) -> bool:
+
+        if self.upperbracket.register_game_result(finished_game) == True:
+            #HIER WEITERMACHEN Verlierer muss gespeichert werden und wenns zwei sind ein game in lowerbracket gespeichert werden
+
+            return True 
+        
+        for treelevel in self.tree:
+            for node in self.tree[treelevel]:
+                if node.game.game_id == finished_game.game_id:
+                    node.game = finished_game
+                    return True
+        return False
+
+    def get_playable_games(self) -> list[Game]:
+        result = list()
+        result = self.upperbracket.get_playable_games()
         for treelevel in self.tree:
             for node in self.tree[treelevel]:
                 if node.game != None & node.game_send_to_client == False:

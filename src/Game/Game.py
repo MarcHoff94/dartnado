@@ -184,3 +184,11 @@ class Game(BaseModel, UserInterface):
     
     def finish_game(self) -> None:
         pass
+
+    def add_team(self, team: Team):
+        self.teams.append(team)
+        self.sets[team.id] = list()
+        self.current_set.legs[team.id] = list()
+        self.current_leg.points[team.id] = self.game_mode.points_per_leg
+        self.current_leg.rounds[team.id] = list()
+        
